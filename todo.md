@@ -24,3 +24,14 @@
 - [x] Validate the final demo-mode project build and tests.
 - [x] Save a publishable checkpoint.
 - [x] Create a private GitHub repository and push all project code.
+- [x] Confirm access to the second GitHub account repository https://github.com/rintuchowdory/lumora-recreation.git.
+- [x] Push the complete Lumora project to the second repository.
+- [x] Verify the pushed remote and report the repository URL.
+- [x] Retry pushing the complete Lumora project to rintuchowdory/lumora-recreation without browser authentication.
+- [x] Use the temporary PAT to push to rintuchowdory/lumora-recreation without storing the token.
+- [x] Verify the second-account repository contains the main branch and latest project code.
+- [x] Add smooth scrolling to primary and footer navigation links.
+- [x] Add a responsive Back to Top button with accessible labeling and visibility behavior.
+- [x] Verify scrolling behavior and responsive presentation.
+- [x] Fix unresolved primary and footer navigation targets so every in-page link reaches an existing section or valid contact action.
+- [x] Exercise the smooth-scroll and Back to Top interactions and document the result.

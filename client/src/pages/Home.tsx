@@ -1,7 +1,7 @@
 /* Lumora Recreation — faithful editorial recreation with asymmetrical composition, Onest typography, pale stone surfaces, copper signal color, hairline dividers, and restrained motion. */
 import { FormEvent, useEffect, useState } from 'react';
 import { trpc } from '@/lib/trpc';
-import { ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, Globe2, Menu, X } from 'lucide-react';
+import { ArrowDown, ArrowDownRight, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, ChevronDown, Globe2, Menu, X } from 'lucide-react';
 
 const heroSlides = [
   { eyebrow: 'CONVERSION DESIGN', title: 'Crafted to convert.' },
@@ -38,6 +38,14 @@ export default function Home() {
     onError: () => setFormError('We could not send your message right now. Please email or WhatsApp directly.'),
   });
   const [time, setTime] = useState('10:07pm');
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowBackToTop(window.scrollY > 520);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     const tick = () => setTime(new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).format(new Date()).toLowerCase());
@@ -49,7 +57,8 @@ export default function Home() {
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen, contactOpen]);
 
-  const go = (id: string) => { setMenuOpen(false); setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 80); };
+  const go = (id: string) => { setMenuOpen(false); setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80); };
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   const submit = (e: FormEvent<HTMLFormElement>) => { e.preventDefault(); const form = new FormData(e.currentTarget); sendContact.mutate({ name: String(form.get('name') || ''), email: String(form.get('email') || ''), project: String(form.get('project') || '') }); };
 
   return (
@@ -57,7 +66,7 @@ export default function Home() {
       <header className="site-header">
         <button className="brand-button" onClick={() => go('home')} aria-label="Lumora home"><Brand /></button>
         <nav className="desktop-nav" aria-label="Primary navigation">
-          {['Home', 'Work', 'Services', 'Studio', 'Careers', 'Contact'].map((item) => <button key={item} onClick={() => item === 'Contact' ? setContactOpen(true) : go(item.toLowerCase())}>{item}{item === 'Services' && <ChevronDown size={12} />}</button>)}
+          {['Home', 'Work', 'Services', 'Studio', 'Careers', 'Contact'].map((item) => <button key={item} onClick={() => item === 'Contact' || item === 'Careers' ? setContactOpen(true) : go(item === 'Studio' ? 'studio' : item.toLowerCase())}>{item}{item === 'Services' && <ChevronDown size={12} />}</button>)}
         </nav>
         <div className="header-actions">
           <div className="clock-chip"><span>Local time</span><strong>{time}</strong><i /> <strong>21 August, 2026</strong></div>
@@ -91,17 +100,18 @@ export default function Home() {
 
         <section className="portfolio lumora-shell" id="work"><div className="section-heading"><div className="section-label">Portfolio</div><h2>Selected Work</h2></div><div className="project-list">{projects.map((p, i) => <a className="project" href={p.href} target="_blank" rel="noreferrer" key={p.name}><div className="project-meta"><span>{p.type} — {p.year}</span><b>®</b></div><div className="project-image"><img src={p.image} alt="" /></div><div className="project-info"><h3>{p.name}</h3><p>{p.description}</p><div className="tags">{p.tags.map((tag) => <span key={tag}>{tag}</span>)}</div></div><ArrowUpRight className="project-arrow" size={20} /></a>)}</div></section>
 
-        <section className="services lumora-shell" id="services"><div className="section-heading"><div className="section-label">Services</div><h2>What we do best</h2></div><div className="service-list">{services.map(([num, name, desc]) => <a href={`#${name.toLowerCase().replaceAll(' ', '-')}`} className="service" key={num}><span>{num}</span><div><h3>{name}</h3><p>{desc}</p></div><ArrowUpRight size={18} /></a>)}</div></section>
+        <section className="services lumora-shell" id="services"><div className="section-heading"><div className="section-label">Services</div><h2>What we do best</h2></div><div className="service-list">{services.map(([num, name, desc]) => <a href="#services" className="service" key={num}><span>{num}</span><div><h3>{name}</h3><p>{desc}</p></div><ArrowUpRight size={18} /></a>)}</div></section>
 
         <section className="numbers lumora-shell"><div className="section-heading"><div className="section-label">By the numbers</div><h2>Proof in the work,<br /><em>not the words.</em></h2></div><div className="number-grid">{[['200+', 'Projects delivered'], ['98%', 'Client retention'], ['12', 'Years of craft'], ['24+', 'Team members']].map(([n, label]) => <div key={label}><strong>{n}</strong><span>{label}</span></div>)}</div></section>
 
-        <section className="contact-cta"><div className="lumora-shell"><h2>Have a project<br />in mind? Let's<br /><em>get to work.</em></h2><button className="pill-button light-button" onClick={() => setContactOpen(true)}>Start a project <span><ArrowUpRight size={14} /></span></button></div></section>
+        <section className="contact-cta" id="contact"><div className="lumora-shell"><h2>Have a project<br />in mind? Let's<br /><em>get to work.</em></h2><button className="pill-button light-button" onClick={() => setContactOpen(true)}>Start a project <span><ArrowUpRight size={14} /></span></button></div></section>
       </main>
 
-      <footer className="footer"><div className="lumora-shell footer-grid"><div><Brand dark /><p>An independent studio crafting brands, products, and the systems that connect them.</p><div className="footer-contact"><a href="mailto:chowdorydevops@gmail.com">chowdorydevops@gmail.com</a><a href="tel:017666621563">017666621563</a><a href="https://wa.me/4917666621563" target="_blank" rel="noreferrer">WhatsApp direct message</a><a href="https://rintu-portfolio.vercel.app/" target="_blank" rel="noreferrer">Personal portfolio ↗</a></div></div><div><h4>Company</h4><a href="#about">About</a><a href="#careers">Careers</a><a href="#partners">Partners</a><button onClick={() => setContactOpen(true)}>Contact</button></div><div><h4>Services</h4><a href="#development">Development</a><a href="#design">Design</a><a href="#qa">Quality Assurance</a><a href="#consulting">Consulting</a></div><div><h4>Social</h4><a href="https://github.com/Rintu-chowdory" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.linkedin.com/in/rintu-chowdory/" target="_blank" rel="noreferrer">LinkedIn</a><a href="https://rintu-portfolio.vercel.app/" target="_blank" rel="noreferrer">Portfolio</a><a href="https://wa.me/4917666621563" target="_blank" rel="noreferrer">WhatsApp</a></div></div><div className="lumora-shell footer-bottom"><span>© 2025 Lumora Studio. All rights reserved.</span><span><a href="#privacy">Privacy</a><a href="#terms">Terms</a></span></div></footer>
+      <footer className="footer"><div className="lumora-shell footer-grid"><div><Brand dark /><p>An independent studio crafting brands, products, and the systems that connect them.</p><div className="footer-contact"><a href="mailto:chowdorydevops@gmail.com">chowdorydevops@gmail.com</a><a href="tel:017666621563">017666621563</a><a href="https://wa.me/4917666621563" target="_blank" rel="noreferrer">WhatsApp direct message</a><a href="https://rintu-portfolio.vercel.app/" target="_blank" rel="noreferrer">Personal portfolio ↗</a></div></div><div><h4>Company</h4><a href="#about">About</a><a href="#contact">Careers</a><a href="#studio">Partners</a><button onClick={() => setContactOpen(true)}>Contact</button></div><div><h4>Services</h4><a href="#services">Development</a><a href="#services">Design</a><a href="#services">Quality Assurance</a><a href="#services">Consulting</a></div><div><h4>Social</h4><a href="https://github.com/Rintu-chowdory" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.linkedin.com/in/rintu-chowdory/" target="_blank" rel="noreferrer">LinkedIn</a><a href="https://rintu-portfolio.vercel.app/" target="_blank" rel="noreferrer">Portfolio</a><a href="https://wa.me/4917666621563" target="_blank" rel="noreferrer">WhatsApp</a></div></div><div className="lumora-shell footer-bottom"><span>© 2025 Lumora Studio. All rights reserved.</span><span><a href="#home">Privacy</a><a href="#home">Terms</a></span></div></footer>
 
-      {menuOpen && <div className="overlay menu-overlay"><div className="overlay-top"><Brand dark /><button onClick={() => setMenuOpen(false)} aria-label="Close menu"><X size={20} /> Close</button></div><div className="menu-links">{['Home', 'Work', 'Services', 'Studio', 'Careers', 'Contact'].map((item, i) => <button key={item} onClick={() => item === 'Contact' ? (setMenuOpen(false), setContactOpen(true)) : go(item.toLowerCase())}><small>0{i + 1}</small>{item}</button>)}</div><div className="overlay-bottom"><span>Local time — {time}</span><button onClick={() => { setMenuOpen(false); setContactOpen(true); }}>Start a project <ArrowRight size={16} /></button></div></div>}
+      {menuOpen && <div className="overlay menu-overlay"><div className="overlay-top"><Brand dark /><button onClick={() => setMenuOpen(false)} aria-label="Close menu"><X size={20} /> Close</button></div><div className="menu-links">{['Home', 'Work', 'Services', 'Studio', 'Careers', 'Contact'].map((item, i) => <button key={item} onClick={() => item === 'Contact' || item === 'Careers' ? (setMenuOpen(false), setContactOpen(true)) : go(item === 'Studio' ? 'studio' : item.toLowerCase())}><small>0{i + 1}</small>{item}</button>)}</div><div className="overlay-bottom"><span>Local time — {time}</span><button onClick={() => { setMenuOpen(false); setContactOpen(true); }}>Start a project <ArrowRight size={16} /></button></div></div>}
       {contactOpen && <div className="overlay contact-overlay"><div className="overlay-top"><Brand dark /><button onClick={() => { setContactOpen(false); setSubmitted(false); }} aria-label="Close contact"><X size={20} /> Close</button></div><div className="contact-form-wrap"><div className="section-label">Start a project</div><h2>Tell us what<br />you're building.</h2>{submitted ? <div className="success"><span>✦</span><h3>Demo request captured.</h3><p>Email forwarding will activate after the Gmail setup is completed.</p><button className="text-link" onClick={() => { setContactOpen(false); setSubmitted(false); }}>Back to site <ArrowUpRight size={15} /></button></div> : <form onSubmit={submit}><label>Name<input required name="name" placeholder="Your name" /></label><label>Email<input required type="email" name="email" placeholder="you@company.com" /></label><label>Project<textarea required name="project" rows={4} placeholder="A little about what you're building..." /></label><div className="form-foot"><small>We reply within one business day.<br /><a className="contact-inline" href="mailto:chowdorydevops@gmail.com">chowdorydevops@gmail.com</a><br /><a className="contact-inline" href="tel:017666621563">017666621563</a><br /><a className="contact-inline" href="https://wa.me/4917666621563" target="_blank" rel="noreferrer">WhatsApp me</a><br /><a className="contact-inline" href="https://rintu-portfolio.vercel.app/" target="_blank" rel="noreferrer">View personal portfolio</a>{formError && <span className="contact-error">{formError}</span>}</small><button className="pill-button dark" type="submit" disabled={sendContact.isPending}>{sendContact.isPending ? 'Sending…' : 'Send request'} <span><ArrowUpRight size={14} /></span></button></div></form>}</div></div>}
+      <button className={`back-to-top ${showBackToTop ? 'is-visible' : ''}`} onClick={scrollToTop} aria-label="Back to top" aria-hidden={!showBackToTop} tabIndex={showBackToTop ? 0 : -1}><ArrowUp size={14} /><span>Top</span></button>
     </div>
   );
 }
