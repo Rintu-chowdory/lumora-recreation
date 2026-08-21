@@ -35,3 +35,5 @@
 - [x] Verify scrolling behavior and responsive presentation.
 - [x] Fix unresolved primary and footer navigation targets so every in-page link reaches an existing section or valid contact action.
 - [x] Exercise the smooth-scroll and Back to Top interactions and document the result.
+- [ ] Push the latest smooth-scroll and Back to Top updates to the connected GitHub remotes.
+- [ ] Verify the remote branches contain the latest project checkpoint.
