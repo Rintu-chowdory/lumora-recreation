@@ -9,4 +9,14 @@
 - [x] Add a professional title beside the portrait.
 - [x] Add the portfolio link https://rintu-portfolio.vercel.app/.
 - [x] Verify responsive presentation after the update.
+- [x] Add LinkedIn and GitHub profile links to the social section.
+- [x] Review and extract project details from the personal portfolio.
+- [x] Upgrade the project for secure server-side contact-form forwarding.
+- [x] Configure contact submissions to forward to Rintuchowdory@yahoo.com.
+- [x] Replace sample studio entries with portfolio projects.
+- [x] Verify profile links, form flow, and responsive presentation.
 - [ ] Save and deliver a new project checkpoint.
+- [ ] Run a real contact-form submission through the running app and verify delivery to Rintuchowdory@yahoo.com.
+- [ ] Exercise the contact-form error path with unavailable SMTP and verify the UI error state.
+- [x] Replace all visible and server-side contact destinations with chowdorydevops@gmail.com.
+- [x] Re-run tests and verify the updated contact presentation.
