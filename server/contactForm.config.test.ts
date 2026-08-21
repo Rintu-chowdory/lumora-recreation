@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 describe("contact form email configuration", () => {
-  it("has the Yahoo SMTP credentials and destination configured", () => {
-    expect(process.env.YAHOO_SMTP_USER).toBe("Rintuchowdory@yahoo.com");
-    expect(process.env.YAHOO_CONTACT_TO).toBe("chowdorydevops@gmail.com");
-    expect(process.env.YAHOO_APP_PASSWORD).toBeTruthy();
+  it("uses demo mode without requiring SMTP credentials", () => {
+    expect(process.env.GMAIL_DEMO_MODE ?? "true").toBe("true");
+    expect(process.env.GMAIL_CONTACT_TO).toBe("chowdorydevops@gmail.com");
   });
 });

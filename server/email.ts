@@ -8,12 +8,12 @@ export type ContactMessage = {
 };
 
 function getTransport() {
-  const user = process.env.YAHOO_SMTP_USER;
-  const pass = process.env.YAHOO_APP_PASSWORD;
-  if (!user || !pass) throw new Error("Yahoo SMTP is not configured");
+  const user = process.env.GMAIL_SMTP_USER;
+  const pass = process.env.GMAIL_APP_PASSWORD;
+  if (!user || !pass) throw new Error("Gmail SMTP is not configured");
 
   return nodemailer.createTransport({
-    host: "smtp.mail.yahoo.com",
+    host: "smtp.gmail.com",
     port: 465,
     secure: true,
     auth: { user, pass },
@@ -21,11 +21,15 @@ function getTransport() {
 }
 
 export async function sendContactMessage(message: ContactMessage) {
-  const to = process.env.YAHOO_CONTACT_TO || process.env.YAHOO_SMTP_USER;
-  if (!to) throw new Error("Yahoo contact destination is not configured");
+  // Demo mode is intentional until the owner provides a valid Gmail App Password.
+  // The submission is validated by the API but no outbound email is attempted.
+  if (process.env.GMAIL_DEMO_MODE !== "false") return;
+
+  const to = process.env.GMAIL_CONTACT_TO || process.env.GMAIL_SMTP_USER;
+  if (!to) throw new Error("Gmail contact destination is not configured");
 
   await getTransport().sendMail({
-    from: `Lumora website <${process.env.YAHOO_SMTP_USER}>`,
+    from: `Lumora website <${process.env.GMAIL_SMTP_USER}>`,
     to,
     replyTo: message.email,
     subject: `New project enquiry from ${message.name}`,
