@@ -15,12 +15,12 @@
 - [x] Configure contact submissions to forward to Rintuchowdory@yahoo.com.
 - [x] Replace sample studio entries with portfolio projects.
 - [x] Verify profile links, form flow, and responsive presentation.
-- [ ] Save and deliver a new project checkpoint.
+- [x] Save and deliver a new project checkpoint.
 - [x] Defer real SMTP delivery until Gmail setup; user requested explicit demo mode instead.
 - [x] Use explicit demo-mode confirmation copy and automated validation until SMTP is enabled.
 - [x] Replace all visible and server-side contact destinations with chowdorydevops@gmail.com.
 - [x] Re-run tests and verify the updated contact presentation.
 - [x] Switch contact forwarding to explicit demo Gmail mode without requiring a credential.
 - [x] Validate the final demo-mode project build and tests.
-- [ ] Save a publishable checkpoint.
-- [ ] Create a private GitHub repository and push all project code.
+- [x] Save a publishable checkpoint.
+- [x] Create a private GitHub repository and push all project code.
