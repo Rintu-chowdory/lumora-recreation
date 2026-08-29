@@ -76,7 +76,7 @@ export default function Home() {
 
       <main id="home">
         <section className="hero">
-          <img className="hero-image" src="/manus-storage/Foto2026_ccd62c17.png" alt="Editorial portrait" />
+          <img className="hero-image" src="/Foto2026.png" alt="Editorial portrait" />
           <div className="hero-vignette" />
           <div className="hero-inner lumora-shell">
             <div className="hero-copy">
