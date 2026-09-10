@@ -711,7 +711,11 @@ ${message.project}`,
       })
     }
   );
-  if (!response.ok) throw new Error(`Contact relay failed with status ${response.status}`);
+  if (!response.ok) {
+    const reason = (await response.text().catch(() => "")).slice(0, 300);
+    console.error(`[Contact relay] ${response.status}: ${reason}`);
+    throw new Error(`Contact relay failed with status ${response.status}: ${reason}`);
+  }
   const data = await response.json().catch(() => null);
   if (data && data.success === false) throw new Error(data.message || "Contact relay rejected the submission");
 }
