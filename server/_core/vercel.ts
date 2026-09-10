@@ -3,7 +3,6 @@ import express, { type Express, type Request, type Response } from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
-import { serveStatic } from "./vite";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 
@@ -30,7 +29,9 @@ async function handler(req: Request, res: Response): Promise<void> {
         createContext,
       })
     );
-    serveStatic(created);
+    // No static serving here: Vercel's CDN serves dist/public via the
+    // vercel.json rewrites, and importing "./vite" would drag rollup's
+    // platform-specific natives into the serverless bundle.
     app = created;
   }
   return void app(req, res);
