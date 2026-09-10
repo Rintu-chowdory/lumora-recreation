@@ -73,7 +73,13 @@ export async function sendContactMessage(message: ContactMessage) {
     `https://formsubmit.co/ajax/${encodeURIComponent(config.contactTo)}`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        // FormSubmit rejects requests without a Referer as a local-file guard;
+        // the server-side relay must present the public site URL.
+        Referer: "https://lumora-navy-tau.vercel.app/",
+      },
       body: JSON.stringify({
         _subject: `New project enquiry from ${message.name} (Lumora website)`,
         _template: "table",
