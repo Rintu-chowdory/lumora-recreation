@@ -48,18 +48,44 @@ function getTransport(env: EmailEnvironment = getRuntimeEmailEnvironment()) {
 export async function sendContactMessage(message: ContactMessage) {
   const config = getEmailConfiguration();
 
-  // Demo mode is intentional until the owner provides a valid Gmail App Password.
-  // The submission is validated by the API but no outbound email is attempted.
+  // Demo mode is intentional for local/test runs (GMAIL_DEMO_MODE=false to deliver).
   if (config.demoMode) return;
 
-  await getTransport().sendMail({
-    from: `Lumora website <${process.env.GMAIL_SMTP_USER}>`,
-    to: config.contactTo,
-    replyTo: message.email,
-    subject: `New project enquiry from ${message.name}`,
-    text: `Name: ${message.name}\nEmail: ${message.email}\n\nProject:\n${message.project}`,
-    html: `<h2>New project enquiry</h2><p><strong>Name:</strong> ${escapeHtml(message.name)}</p><p><strong>Email:</strong> ${escapeHtml(message.email)}</p><h3>Project</h3><p>${escapeHtml(message.project).replaceAll("\n", "<br />")}</p>`,
-  });
+  // Preferred path: Gmail SMTP when an App Password is configured.
+  const smtpUser = process.env.GMAIL_SMTP_USER;
+  const smtpPass = process.env.GMAIL_APP_PASSWORD;
+  if (smtpUser && smtpPass) {
+    await getTransport().sendMail({
+      from: `Lumora website <${process.env.GMAIL_SMTP_USER}>`,
+      to: config.contactTo,
+      replyTo: message.email,
+      subject: `New project enquiry from ${message.name}`,
+      text: `Name: ${message.name}\nEmail: ${message.email}\n\nProject:\n${message.project}`,
+      html: `<h2>New project enquiry</h2><p><strong>Name:</strong> ${escapeHtml(message.name)}</p><p><strong>Email:</strong> ${escapeHtml(message.email)}</p><h3>Project</h3><p>${escapeHtml(message.project).replaceAll("\n", "<br />")}</p>`,
+    });
+    return;
+  }
+
+  // Credential-free path: FormSubmit relay (https://formsubmit.co). The first
+  // submission triggers a one-time activation email to the recipient; after
+  // that every submission is delivered to the inbox. No SMTP secrets needed.
+  const response = await fetch(
+    `https://formsubmit.co/ajax/${encodeURIComponent(config.contactTo)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        _subject: `New project enquiry from ${message.name} (Lumora website)`,
+        _template: "table",
+        name: message.name,
+        email: message.email,
+        message: message.project,
+      }),
+    }
+  );
+  if (!response.ok) throw new Error(`Contact relay failed with status ${response.status}`);
+  const data = (await response.json().catch(() => null)) as { success?: boolean; message?: string } | null;
+  if (data && data.success === false) throw new Error(data.message || "Contact relay rejected the submission");
 }
 
 function escapeHtml(value: string) {
