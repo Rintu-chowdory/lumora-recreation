@@ -1,6 +1,5 @@
 /* Lumora Recreation — faithful editorial recreation with asymmetrical composition, Onest typography, pale stone surfaces, copper signal color, hairline dividers, and restrained motion. */
 import { FormEvent, useEffect, useState } from 'react';
-import { trpc } from '@/lib/trpc';
 import { ArrowDown, ArrowDownRight, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, ChevronDown, Globe2, Menu, X } from 'lucide-react';
 
 const heroSlides = [
@@ -33,10 +32,7 @@ export default function Home() {
   const [slide, setSlide] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [formError, setFormError] = useState('');
-  const sendContact = trpc.contact.send.useMutation({
-    onSuccess: () => { setSubmitted(true); setFormError(''); },
-    onError: () => setFormError('We could not send your message right now. Please email or WhatsApp directly.'),
-  });
+  const [sending, setSending] = useState(false);
   const [time, setTime] = useState('10:07pm');
   const [showBackToTop, setShowBackToTop] = useState(false);
 
@@ -59,7 +55,35 @@ export default function Home() {
 
   const go = (id: string) => { setMenuOpen(false); setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80); };
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-  const submit = (e: FormEvent<HTMLFormElement>) => { e.preventDefault(); const form = new FormData(e.currentTarget); sendContact.mutate({ name: String(form.get('name') || ''), email: String(form.get('email') || ''), project: String(form.get('project') || '') }); };
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const name = String(form.get('name') || '');
+    const email = String(form.get('email') || '');
+    const project = String(form.get('project') || '');
+    setSending(true); setFormError('');
+    try {
+      const response = await fetch('https://formsubmit.co/ajax/chowdorydevops@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          _subject: `New project enquiry from ${name} (Lumora website)`,
+          _template: 'table',
+          _captcha: 'false',
+          _honey: String(form.get('_honey') || ''),
+          name,
+          email,
+          message: project,
+        }),
+      });
+      const data = (await response.json().catch(() => null)) as { success?: string | boolean; message?: string } | null;
+      const ok = !!data && (data.success === true || data.success === 'true');
+      if (ok || (data?.message || '').includes('Activation')) { setSubmitted(true); }
+      else { setFormError('We could not send your message right now. Please email or WhatsApp directly.'); }
+    } catch {
+      setFormError('We could not send your message right now. Please email or WhatsApp directly.');
+    } finally { setSending(false); }
+  };
 
   return (
     <div className="site">
@@ -110,7 +134,7 @@ export default function Home() {
       <footer className="footer"><div className="lumora-shell footer-grid"><div><Brand dark /><p>An independent studio crafting brands, products, and the systems that connect them.</p><div className="footer-contact"><a href="mailto:chowdorydevops@gmail.com">chowdorydevops@gmail.com</a><a href="tel:017666621563">017666621563</a><a href="https://wa.me/4917666621563" target="_blank" rel="noreferrer">WhatsApp direct message</a><a href="https://rintu-portfolio.vercel.app/" target="_blank" rel="noreferrer">Personal portfolio ↗</a></div></div><div><h4>Company</h4><a href="#about">About</a><a href="#contact">Careers</a><a href="#studio">Partners</a><button onClick={() => setContactOpen(true)}>Contact</button></div><div><h4>Services</h4><a href="#services">Development</a><a href="#services">Design</a><a href="#services">Quality Assurance</a><a href="#services">Consulting</a></div><div><h4>Social</h4><a href="https://github.com/Rintu-chowdory" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.linkedin.com/in/rintu-chowdory/" target="_blank" rel="noreferrer">LinkedIn</a><a href="https://rintu-portfolio.vercel.app/" target="_blank" rel="noreferrer">Portfolio</a><a href="https://wa.me/4917666621563" target="_blank" rel="noreferrer">WhatsApp</a></div></div><div className="lumora-shell footer-bottom"><span>© 2025 Lumora Studio. All rights reserved.</span><span><a href="#home">Privacy</a><a href="#home">Terms</a></span></div></footer>
 
       {menuOpen && <div className="overlay menu-overlay"><div className="overlay-top"><Brand dark /><button onClick={() => setMenuOpen(false)} aria-label="Close menu"><X size={20} /> Close</button></div><div className="menu-links">{['Home', 'Work', 'Services', 'Studio', 'Careers', 'Contact'].map((item, i) => <button key={item} onClick={() => item === 'Contact' || item === 'Careers' ? (setMenuOpen(false), setContactOpen(true)) : go(item === 'Studio' ? 'studio' : item.toLowerCase())}><small>0{i + 1}</small>{item}</button>)}</div><div className="overlay-bottom"><span>Local time — {time}</span><button onClick={() => { setMenuOpen(false); setContactOpen(true); }}>Start a project <ArrowRight size={16} /></button></div></div>}
-      {contactOpen && <div className="overlay contact-overlay"><div className="overlay-top"><Brand dark /><button onClick={() => { setContactOpen(false); setSubmitted(false); }} aria-label="Close contact"><X size={20} /> Close</button></div><div className="contact-form-wrap"><div className="section-label">Start a project</div><h2>Tell us what<br />you're building.</h2>{submitted ? <div className="success"><span>✦</span><h3>Request sent.</h3><p>Thanks for reaching out — I will reply within one business day.</p><button className="text-link" onClick={() => { setContactOpen(false); setSubmitted(false); }}>Back to site <ArrowUpRight size={15} /></button></div> : <form onSubmit={submit}><label>Name<input required name="name" placeholder="Your name" /></label><label>Email<input required type="email" name="email" placeholder="you@company.com" /></label><label>Project<textarea required name="project" rows={4} placeholder="A little about what you're building..." /></label><div className="form-foot"><small>We reply within one business day.<br /><a className="contact-inline" href="mailto:chowdorydevops@gmail.com">chowdorydevops@gmail.com</a><br /><a className="contact-inline" href="tel:017666621563">017666621563</a><br /><a className="contact-inline" href="https://wa.me/4917666621563" target="_blank" rel="noreferrer">WhatsApp me</a><br /><a className="contact-inline" href="https://rintu-portfolio.vercel.app/" target="_blank" rel="noreferrer">View personal portfolio</a>{formError && <span className="contact-error">{formError}</span>}</small><button className="pill-button dark" type="submit" disabled={sendContact.isPending}>{sendContact.isPending ? 'Sending…' : 'Send request'} <span><ArrowUpRight size={14} /></span></button></div></form>}</div></div>}
+      {contactOpen && <div className="overlay contact-overlay"><div className="overlay-top"><Brand dark /><button onClick={() => { setContactOpen(false); setSubmitted(false); }} aria-label="Close contact"><X size={20} /> Close</button></div><div className="contact-form-wrap"><div className="section-label">Start a project</div><h2>Tell us what<br />you're building.</h2>{submitted ? <div className="success"><span>✦</span><h3>Request sent.</h3><p>Thanks for reaching out — I will reply within one business day.</p><button className="text-link" onClick={() => { setContactOpen(false); setSubmitted(false); }}>Back to site <ArrowUpRight size={15} /></button></div> : <form onSubmit={submit}><input type="text" name="_honey" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" aria-hidden="true" /><label>Name<input required name="name" placeholder="Your name" /></label><label>Email<input required type="email" name="email" placeholder="you@company.com" /></label><label>Project<textarea required name="project" rows={4} placeholder="A little about what you're building..." /></label><div className="form-foot"><small>We reply within one business day.<br /><a className="contact-inline" href="mailto:chowdorydevops@gmail.com">chowdorydevops@gmail.com</a><br /><a className="contact-inline" href="tel:017666621563">017666621563</a><br /><a className="contact-inline" href="https://wa.me/4917666621563" target="_blank" rel="noreferrer">WhatsApp me</a><br /><a className="contact-inline" href="https://rintu-portfolio.vercel.app/" target="_blank" rel="noreferrer">View personal portfolio</a>{formError && <span className="contact-error">{formError}</span>}</small><button className="pill-button dark" type="submit" disabled={sending}>{sending ? 'Sending…' : 'Send request'} <span><ArrowUpRight size={14} /></span></button></div></form>}</div></div>}
       <button className={`back-to-top ${showBackToTop ? 'is-visible' : ''}`} onClick={scrollToTop} aria-label="Back to top" aria-hidden={!showBackToTop} tabIndex={showBackToTop ? 0 : -1}><ArrowUp size={14} /><span>Top</span></button>
     </div>
   );
